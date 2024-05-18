@@ -1,0 +1,119 @@
+# For more information: https://laravel.com/docs/sail
+version: '3'
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: json-reader-app:latest
+        restart: unless-stopped
+        container_name: json-reader-app
+        volumes:
+            - './:/var/www'
+        networks:
+            - json-reader
+        depends_on:
+            - redis
+
+
+    worker:
+        image: json-reader-app:latest
+        restart: unless-stopped
+        volumes:
+            - './:/var/www'
+        networks:
+            - json-reader
+        depends_on:
+            - app
+            - redis
+        # command: php artisan queue:work -vvv --tries=3
+        command: php artisan queue:listen -vvv --tries=3
+
+
+    nginx:
+        image: nginx:1.25.5
+        restart: unless-stopped
+        ports:
+            - "80:80"
+        volumes:
+            - './:/var/www'
+            - './docker/nginx/conf.d:/etc/nginx/conf.d'
+        networks:
+            - json-reader
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.4.0
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_HOST: "%"
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_USER: '${DB_USERNAME}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 1
+        volumes:
+            - 'json-reader-mysql:/var/lib/mysql'
+        networks:
+            - json-reader
+
+    # mongo:
+    #     image: mongo:latest
+    #     restart: always
+    #     environment:
+    #         MONGO_INITDB_ROOT_USERNAME: '${DB_USERNAME}'
+    #         MONGO_INITDB_ROOT_PASSWORD: '${DB_PASSWORD}'
+    #         MONGO_INITDB_DATABASE: '${DB_DATABASE}'
+    #     volumes:
+    #         - json-reader-mongo:/data/db
+    #     networks:
+    #         - json-reader
+
+    # mongo-express:
+    #     image: mongo-express
+    #     restart: always
+    #     ports:
+    #         - 8081:8081
+    #     environment:
+    #         ME_CONFIG_MONGODB_ADMINUSERNAME: '${DB_USERNAME}'
+    #         ME_CONFIG_MONGODB_ADMINPASSWORD: '${DB_PASSWORD}'
+    #         ME_CONFIG_MONGODB_URL: mongodb://${DB_USERNAME}:${DB_PASSWORD}@mongo:27017/
+    #         ME_CONFIG_BASICAUTH: false
+    #     depends_on:
+    #         - mongo
+    #     networks:
+    #         - json-reader
+
+
+    redis:
+        image: redis:7.2.4
+        restart: unless-stopped
+        networks:
+            - json-reader
+
+      
+    # phpmyadmin:
+    #     image: phpmyadmin/phpmyadmin
+    #     links:
+    #         - mysql:mysql
+    #     ports:
+    #         - 8080:80
+    #     environment:
+    #         MYSQL_USERNAME: "${DB_USERNAME}"
+    #         MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+    #         PMA_HOST: mysql
+    #     networks:
+    #         - json-reader
+    #     depends_on:
+    #         - mysql
+
+networks:
+    json-reader:
+        driver: bridge
+volumes:
+    json-reader-mysql:
+        driver: local
+    # json-reader-mongo:
+        # driver: local
+
