@@ -93,20 +93,20 @@ services:
             - json-reader
 
       
-    # phpmyadmin:
-    #     image: phpmyadmin/phpmyadmin
-    #     links:
-    #         - mysql:mysql
-    #     ports:
-    #         - 8080:80
-    #     environment:
-    #         MYSQL_USERNAME: "${DB_USERNAME}"
-    #         MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-    #         PMA_HOST: mysql
-    #     networks:
-    #         - json-reader
-    #     depends_on:
-    #         - mysql
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        links:
+            - mysql:mysql
+        ports:
+            - 8080:80
+        environment:
+            MYSQL_USERNAME: "${DB_USERNAME}"
+            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+            PMA_HOST: mysql
+        networks:
+            - json-reader
+        depends_on:
+            - mysql
 
 networks:
     json-reader:

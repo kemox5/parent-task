@@ -24,7 +24,9 @@ class ListUsersRequest extends ApiBaseRequest
             'statusCode' => ['nullable', 'string', 'in:authorised,decline,refunded'],
             'balanceMin' => ['nullable', 'numeric', 'required_with:balanceMax', 'min:0'],
             'balanceMax' => ['nullable', 'numeric', 'required_with:balanceMin', 'gt:balanceMin'],
-            'currency' => ['nullable', 'string', 'size:3']
+            'currency' => ['nullable', 'string', 'size:3'],
+            'page' => ['nullable', 'numeric', 'min:1'],
+            'per_page' => ['nullable', 'numeric', 'min:1', 'max:200'],
         ];
     }
 }

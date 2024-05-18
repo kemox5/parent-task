@@ -15,12 +15,22 @@ class TransactionController extends ApiBaseController
      *  list all users which combine transactaions from all the available providerDataProviderX and DataProviderY
      * 
      * 
-     *  @response array{success: boolean, users: UserResource[]}
+     *  @response array{success: boolean, users: UserResource[], meta:array{total: int, currentPage: int, perPage: int} }
      */
     public function list_users(ListUsersRequest $req, TransactionRepositoryInterface $transaction)
     {
         $users = $transaction->list_users($req);
+
         // return $users;
-        return $this->success(['users' => UserResource::collection($users)]);
+        return $this->success(
+            [
+                'meta' => [
+                    'total' => $users->total(),
+                    'currentPage' => $users->currentPage(),
+                    'perPage' => $users->perPage(),
+                ],
+                'users' => UserResource::collection($users)
+            ]
+        );
     }
 }

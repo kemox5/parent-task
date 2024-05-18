@@ -12,7 +12,7 @@ class TransactionRepository implements TransactionRepositoryInterface
     public function list_users(Request $req)
     {
         $user = Order::query()
-        ->groupBy('email');
+            ->groupBy('email');
 
         if ($req->provider) {
             $user->where('source', $req->provider);
@@ -37,10 +37,11 @@ class TransactionRepository implements TransactionRepositoryInterface
                 ->where('amount', '<=', $req->balanceMax);
         }
 
-        return $user->get();
+        return $user->paginate($req->per_page ?? 20);
     }
 
-    public function insert_many(array $transations){
+    public function insert_many(array $transations)
+    {
         Order::insert($transations);
     }
 }
